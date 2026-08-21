@@ -1,0 +1,38 @@
+{
+  "name": "big-block-technologies",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Corporate website for Big Block Technologies",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/generate-sitemap.mjs && tsc -b && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc -b --pretty",
+    "sitemap": "node scripts/generate-sitemap.mjs"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@mui/material": "^9.3.1",
+    "lucide-react": "^1.31.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "~5.9.3",
+    "vite": "^8.2.1"
+  }
+}

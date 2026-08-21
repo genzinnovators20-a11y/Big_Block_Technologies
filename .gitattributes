@@ -1,0 +1,19 @@
+# Normalise line endings so the repo is consistent regardless of who commits
+# from which platform.
+* text=auto eol=lf
+
+# Files that MUST keep LF. A CRLF shebang makes a shell script unrunnable on
+# the Linux VPS ("bad interpreter: /usr/bin/env bash^M"), and Nginx rejects a
+# configuration with stray carriage returns.
+*.sh        text eol=lf
+*.conf      text eol=lf
+*.mjs       text eol=lf
+
+# Binary assets: never transform, never diff as text.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.webp      binary
+*.ico       binary
+*.woff      binary
+*.woff2     binary
