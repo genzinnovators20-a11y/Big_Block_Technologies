@@ -1,7 +1,6 @@
 import { Link as RouterLink, Navigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Seo } from '@/components/common/Seo';
@@ -10,6 +9,8 @@ import { PageHero } from '@/components/layout/PageHero';
 import { Reveal } from '@/components/common/Reveal';
 import { IllustrativeNotice } from '@/components/common/IllustrativeNotice';
 import { CallToAction } from '@/components/sections/CallToAction';
+import { CornerTicks, SurfaceCard, TagRow } from '@/components/ui';
+import { CaseStudyGlyph, glyphForEngagement } from '@/components/visual/CaseStudyGlyph';
 import { caseStudies, getCaseStudy } from '@/data/caseStudies';
 
 export default function CaseStudyDetail() {
@@ -35,17 +36,23 @@ export default function CaseStudyDetail() {
         eyebrow={`${study.sector} · ${study.engagement}`}
         title={study.title}
         lede={study.challenge}
-        aside={<IllustrativeNotice />}
+        aside={
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <SurfaceCard padding="none" sx={{ position: 'relative', overflow: 'hidden' }}>
+              <CornerTicks inset={8} />
+              <CaseStudyGlyph kind={glyphForEngagement(study.engagement)} title={study.title} />
+            </SurfaceCard>
+            <IllustrativeNotice />
+          </Box>
+        }
       >
-        <Box sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-          {study.stack.map((tech) => (
-            <Chip key={tech} label={tech} size="small" />
-          ))}
+        <Box sx={{ mt: 4 }}>
+          <TagRow items={study.stack} />
         </Box>
       </PageHero>
 
       {/* ------------------------------------------------------------ Approach */}
-      <Section tone="light" aria-labelledby="approach-heading">
+      <Section tone="band" aria-labelledby="approach-heading">
         <Box
           sx={{
             display: 'grid',
@@ -94,7 +101,7 @@ export default function CaseStudyDetail() {
       </Section>
 
       {/* ------------------------------------------------------------ Solution */}
-      <Section tone="deep" dividerTop aria-labelledby="solution-heading">
+      <Section tone="alt" dividerTop aria-labelledby="solution-heading">
         <Box
           sx={{
             display: 'grid',
@@ -163,7 +170,7 @@ export default function CaseStudyDetail() {
       </Section>
 
       {/* -------------------------------------------------------- Navigation */}
-      <Section tone="panel" spacing="compact" aria-label="More engagement patterns">
+      <Section tone="raised" spacing="compact" aria-label="More engagement patterns">
         <Box
           sx={{
             display: 'flex',

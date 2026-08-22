@@ -23,7 +23,6 @@ export function RouteError() {
 
   return (
     <Box
-      data-color-scheme="dark"
       sx={{
         minHeight: '100dvh',
         bgcolor: 'background.default',

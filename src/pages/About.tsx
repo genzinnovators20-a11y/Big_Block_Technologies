@@ -6,6 +6,8 @@ import { PageHero } from '@/components/layout/PageHero';
 import { SectionHeading } from '@/components/common/SectionHeading';
 import { Reveal } from '@/components/common/Reveal';
 import { CallToAction } from '@/components/sections/CallToAction';
+import { ProcessTimeline, NumberedCard } from '@/components/cards';
+import { Eyebrow, SurfaceCard } from '@/components/ui';
 import { principles, processPhases } from '@/data/process';
 import { capabilityGroups } from '@/data/services';
 
@@ -44,7 +46,7 @@ export default function About() {
       />
 
       {/* ------------------------------------------------------- Positioning */}
-      <Section tone="light" aria-labelledby="mission-heading">
+      <Section tone="band" aria-labelledby="mission-heading">
         <Box
           sx={{
             display: 'grid',
@@ -53,9 +55,7 @@ export default function About() {
           }}
         >
           <Reveal>
-            <Typography variant="label" component="p" sx={{ color: 'accentText', mb: 3 }}>
-              What we are here to do
-            </Typography>
+            <Eyebrow sx={{ mb: 3 }}>What we are here to do</Eyebrow>
             <Typography variant="h2" component="h2" id="mission-heading" sx={{ textWrap: 'balance' }}>
               Build systems that are still maintainable in five years.
             </Typography>
@@ -86,7 +86,7 @@ export default function About() {
       </Section>
 
       {/* -------------------------------------------- Engineering philosophy */}
-      <Section tone="deep" dividerTop aria-labelledby="philosophy-heading">
+      <Section tone="alt" dividerTop aria-labelledby="philosophy-heading">
         <SectionHeading
           eyebrow="Engineering philosophy"
           id="philosophy-heading"
@@ -95,41 +95,33 @@ export default function About() {
         />
 
         <Box
+          component="ol"
           sx={{
-            mt: { xs: 6, md: 8 },
+            listStyle: 'none',
+            m: 0,
+            mt: { xs: 5, md: 7 },
+            p: 0,
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
-            gap: 0,
-            borderTop: '1px solid',
-            borderColor: 'hairline',
+            gap: { xs: 2, md: 2.5 },
           }}
         >
           {philosophy.map((item, index) => (
             <Reveal
               key={item.title}
-              index={index % 2}
-              sx={{
-                py: 4,
-                pr: { md: index % 2 === 0 ? 6 : 0 },
-                pl: { md: index % 2 === 1 ? 6 : 0 },
-                borderBottom: '1px solid',
-                borderColor: 'hairline',
-                borderLeft: { md: index % 2 === 1 ? '1px solid' : 'none' },
-              }}
+              index={index}
+              variant="settle"
+              component="li"
+              sx={{ height: '100%' }}
             >
-              <Typography variant="h4" component="h3">
-                {item.title}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-                {item.body}
-              </Typography>
+              <NumberedCard index={index} title={item.title} body={item.body} />
             </Reveal>
           ))}
         </Box>
       </Section>
 
       {/* ---------------------------------------------------- Capabilities */}
-      <Section tone="paper" aria-labelledby="capability-heading">
+      <Section tone="contrast" aria-labelledby="capability-heading">
         <SectionHeading
           eyebrow="Capabilities"
           id="capability-heading"
@@ -138,30 +130,44 @@ export default function About() {
         />
 
         <Box
+          component="ul"
           sx={{
+            listStyle: 'none',
+            m: 0,
             mt: { xs: 5, md: 7 },
+            p: 0,
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
-            gap: { xs: 4, md: 5 },
+            gap: { xs: 2, md: 2.5 },
           }}
         >
           {capabilityGroups.map((group, index) => (
-            <Reveal key={group.id} index={index}>
-              <Box sx={{ pt: 3, borderTop: '2px solid', borderColor: 'brandAzure', height: '100%' }}>
+            <Reveal
+              key={group.id}
+              index={index}
+              variant="settle"
+              component="li"
+              sx={{ height: '100%' }}
+            >
+              <SurfaceCard padding="lg" sx={{ gap: 1.5 }}>
+                <Box
+                  aria-hidden="true"
+                  sx={{ width: 28, height: '2px', bgcolor: 'brandAzure', mb: 0.5 }}
+                />
                 <Typography variant="h4" component="h3">
                   {group.title}
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary' }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   {group.description}
                 </Typography>
-              </Box>
+              </SurfaceCard>
             </Reveal>
           ))}
         </Box>
       </Section>
 
       {/* ------------------------------------------- Delivery methodology */}
-      <Section tone="ink" dividerTop aria-labelledby="delivery-heading">
+      <Section tone="canvas" dividerTop aria-labelledby="delivery-heading">
         <SectionHeading
           eyebrow="Delivery methodology"
           id="delivery-heading"
@@ -169,68 +175,11 @@ export default function About() {
           lede="A phase that ends in a status update rather than an artefact has not ended."
         />
 
-        <Box component="ol" sx={{ listStyle: 'none', m: 0, mt: { xs: 5, md: 7 }, p: 0 }}>
-          {processPhases.map((phase, index) => (
-            <Reveal key={phase.index} index={index % 3} component="li">
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', md: '80px minmax(0, 1.1fr) minmax(0, 1fr)' },
-                  gap: { xs: 2, md: 4 },
-                  py: { xs: 3.5, md: 4 },
-                  borderTop: '1px solid',
-                  borderColor: 'hairline',
-                  '&:last-of-type': { borderBottom: '1px solid', borderColor: 'hairline' },
-                }}
-              >
-                <Typography variant="label" component="span" sx={{ color: 'accentText', pt: '4px' }}>
-                  {phase.index}
-                </Typography>
-
-                <Box>
-                  <Typography variant="h4" component="h3">
-                    {phase.name}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary' }}>
-                    {phase.description}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="label" component="p" sx={{ color: 'text.disabled', mb: 1.5 }}>
-                    You receive
-                  </Typography>
-                  <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
-                    {phase.artefacts.map((artefact) => (
-                      <Box
-                        component="li"
-                        key={artefact}
-                        sx={{
-                          display: 'flex',
-                          gap: 1.25,
-                          mb: 0.75,
-                          fontSize: '0.875rem',
-                          color: 'text.secondary',
-                        }}
-                      >
-                        <Box
-                          component="span"
-                          aria-hidden="true"
-                          sx={{ width: 5, height: 5, mt: '8px', bgcolor: 'brandAzure', flexShrink: 0 }}
-                        />
-                        {artefact}
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
-            </Reveal>
-          ))}
-        </Box>
+        <ProcessTimeline phases={processPhases} />
       </Section>
 
       {/* --------------------------------------------------- Why clients stay */}
-      <Section tone="panel" aria-labelledby="why-heading">
+      <Section tone="raised" aria-labelledby="why-heading">
         <SectionHeading
           eyebrow="Why clients choose us"
           id="why-heading"
@@ -239,27 +188,30 @@ export default function About() {
         />
 
         <Box
+          component="ol"
           sx={{
-            mt: { xs: 6, md: 8 },
+            listStyle: 'none',
+            m: 0,
+            mt: { xs: 5, md: 7 },
+            p: 0,
             display: 'grid',
             gridTemplateColumns: {
               xs: '1fr',
               sm: 'repeat(2, minmax(0, 1fr))',
               lg: 'repeat(3, minmax(0, 1fr))',
             },
-            gap: { xs: 4, md: 5 },
+            gap: { xs: 2, md: 2.5 },
           }}
         >
           {principles.map((principle, index) => (
-            <Reveal key={principle.title} index={index % 3}>
-              <Box sx={{ pt: 3, borderTop: '1px solid', borderColor: 'hairlineStrong', height: '100%' }}>
-                <Typography variant="h5" component="h3">
-                  {principle.title}
-                </Typography>
-                <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary' }}>
-                  {principle.body}
-                </Typography>
-              </Box>
+            <Reveal
+              key={principle.title}
+              index={index}
+              variant="settle"
+              component="li"
+              sx={{ height: '100%' }}
+            >
+              <NumberedCard index={index} title={principle.title} body={principle.body} />
             </Reveal>
           ))}
         </Box>

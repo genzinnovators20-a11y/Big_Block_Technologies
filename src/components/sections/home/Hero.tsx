@@ -6,74 +6,60 @@ import Typography from '@mui/material/Typography';
 import { ArrowRight } from 'lucide-react';
 import { BlockLattice } from '@/components/visual/BlockLattice';
 import { Reveal } from '@/components/common/Reveal';
-import { layout } from '@/theme/tokens';
-
-/** The three claims that differentiate the practice, each independently verifiable. */
-const differentiators = [
-  { label: 'Architecture', value: 'Decisions written down' },
-  { label: 'Quality', value: 'Tests before hardening' },
-  { label: 'Ownership', value: 'You own everything built' },
-];
+import {
+  CornerTicks,
+  Eyebrow,
+  GlowBackdrop,
+  GridBackdrop,
+  PanelRow,
+  TechPanel,
+} from '@/components/ui';
+import { disciplineSummary, heroDifferentiators } from '@/data/company';
+import { fonts, layout } from '@/theme/tokens';
 
 /**
  * Homepage hero.
  *
- * Says what the company does, who it serves and why it is different, in that
- * order, without a single word of the "transforming the future" register.
+ * Answers the five questions the first viewport has to answer — what the
+ * company does, who it serves, why it is different, what it builds with, and
+ * what to do next — without becoming a poster. The artwork sits beside the
+ * copy, never behind it, so nothing has to be read through a texture.
+ *
+ * The two floating panels are the one place on the site where a `TechPanel`
+ * overlaps another element. Both state practices the site already commits to
+ * elsewhere; neither pretends to be live telemetry, which is why the status
+ * reads `PRACTICE` rather than the reference design's `LIVE`.
  */
 export function Hero() {
   return (
     <Box
       component="section"
-      data-color-scheme="dark"
       aria-labelledby="hero-heading"
       sx={{
         position: 'relative',
-        bgcolor: 'background.default',
+        bgcolor: 'surfaceCanvas',
         // Clears the fixed header, which sits transparently over this section.
-        pt: { xs: `${layout.headerHeight + 48}px`, md: `${layout.headerHeight + 72}px` },
-        pb: { xs: 8, md: 12 },
+        pt: { xs: `${layout.headerHeight + 48}px`, md: `${layout.headerHeight + 76}px` },
+        pb: { xs: 7, md: 11 },
         overflow: 'hidden',
       }}
     >
-      {/* Structural grid, masked so it fades rather than tiling to the edges. */}
-      <Box
-        aria-hidden="true"
-        sx={(theme) => ({
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          backgroundImage: `linear-gradient(to right, ${theme.vars.palette.hairline} 1px, transparent 1px), linear-gradient(to bottom, ${theme.vars.palette.hairline} 1px, transparent 1px)`,
-          backgroundSize: '80px 80px',
-          maskImage: 'radial-gradient(ellipse 70% 70% at 30% 30%, #000 10%, transparent 75%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 30% 30%, #000 10%, transparent 75%)',
-          opacity: 0.75,
-        })}
-      />
+      <GridBackdrop size={80} mask="topLeft" opacity={0.75} />
+      <GlowBackdrop position="topRight" spread={62} />
 
       <Container sx={{ position: 'relative' }}>
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.05fr) minmax(0, 0.95fr)' },
+            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.02fr) minmax(0, 0.98fr)' },
             gap: { xs: 6, lg: 8 },
             alignItems: 'center',
           }}
         >
+          {/* ------------------------------------------------------- Copy */}
           <Box>
             <Reveal>
-              <Typography
-                variant="label"
-                component="p"
-                sx={{ color: 'accentText', display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}
-              >
-                <Box
-                  component="span"
-                  aria-hidden="true"
-                  sx={{ width: 26, height: '1px', bgcolor: 'brandAzure' }}
-                />
-                Technology engineering &amp; consulting
-              </Typography>
+              <Eyebrow sx={{ mb: 3 }}>Software · Blockchain · AI · Product engineering</Eyebrow>
             </Reveal>
 
             <Reveal index={1}>
@@ -83,7 +69,11 @@ export function Hero() {
                 id="hero-heading"
                 sx={{ textWrap: 'balance', maxWidth: '15ch' }}
               >
-                We engineer software that holds up in production.
+                We engineer software that{' '}
+                <Box component="span" sx={{ color: 'accentText' }}>
+                  holds up in production
+                </Box>
+                .
               </Typography>
             </Reveal>
 
@@ -101,7 +91,19 @@ export function Hero() {
             </Reveal>
 
             <Reveal index={3}>
-              <Box sx={{ mt: 5, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {/* Below 380px the two labels cannot sit side by side, and
+                  letting them wrap produced two buttons of different widths
+                  stacked raggedly. They go full-width instead. */}
+              <Box
+                sx={{
+                  mt: 5,
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  '& > a': { width: { xs: '100%', sm: 'auto' } },
+                }}
+              >
                 <Button
                   component={RouterLink}
                   to="/contact"
@@ -115,96 +117,127 @@ export function Hero() {
                 </Button>
               </Box>
             </Reveal>
-
-            <Reveal index={4}>
-              <Box
-                component="dl"
-                sx={{
-                  mt: { xs: 6, md: 8 },
-                  m: 0,
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
-                  gap: 0,
-                  borderTop: '1px solid',
-                  borderColor: 'hairline',
-                }}
-              >
-                {differentiators.map((item, index) => (
-                  <Box
-                    key={item.label}
-                    sx={{
-                      pt: 2.5,
-                      pb: { xs: 2.5, sm: 0 },
-                      pl: { xs: 0, sm: index === 0 ? 0 : 3 },
-                      borderBottom: { xs: '1px solid', sm: 'none' },
-                      borderColor: 'hairline',
-                      borderLeft: { xs: 'none', sm: index === 0 ? 'none' : '1px solid' },
-                      '&:last-of-type': { borderBottom: 'none' },
-                    }}
-                  >
-                    <Typography variant="label" component="dt" sx={{ color: 'text.disabled', mb: 1 }}>
-                      {item.label}
-                    </Typography>
-                    <Typography variant="subtitle2" component="dd" sx={{ m: 0 }}>
-                      {item.value}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Reveal>
           </Box>
 
-          {/* Technical-drawing frame: corner ticks rather than a rounded card. */}
-          <Reveal index={2} distance={24}>
+          {/* ---------------------------------------------------- Artwork */}
+          <Reveal index={2} variant="settle" distance={24}>
             <Box
               sx={{
                 position: 'relative',
-                aspectRatio: { xs: '4 / 3', lg: '1 / 1' },
+                aspectRatio: { xs: '5 / 4', lg: '1 / 1' },
                 width: '100%',
-                maxWidth: { xs: 520, lg: 'none' },
+                maxWidth: { xs: 560, lg: 'none' },
                 mx: 'auto',
               }}
             >
               <BlockLattice />
+              <CornerTicks />
 
-              {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
-                <Box
-                  key={corner}
-                  aria-hidden="true"
-                  sx={{
-                    position: 'absolute',
-                    width: 14,
-                    height: 14,
-                    borderColor: 'hairlineStrong',
-                    ...(corner === 'tl' && {
-                      top: 0,
-                      left: 0,
-                      borderTop: '1px solid',
-                      borderLeft: '1px solid',
-                    }),
-                    ...(corner === 'tr' && {
-                      top: 0,
-                      right: 0,
-                      borderTop: '1px solid',
-                      borderRight: '1px solid',
-                    }),
-                    ...(corner === 'bl' && {
-                      bottom: 0,
-                      left: 0,
-                      borderBottom: '1px solid',
-                      borderLeft: '1px solid',
-                    }),
-                    ...(corner === 'br' && {
-                      bottom: 0,
-                      right: 0,
-                      borderBottom: '1px solid',
-                      borderRight: '1px solid',
-                    }),
-                  }}
-                />
-              ))}
+              {/* Delivery standard — top right. Hidden below sm, where it would
+                  cover the artwork rather than annotate it. */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: { xs: '2%', lg: '4%' },
+                  right: { xs: '-2%', lg: '-6%' },
+                  width: { xs: 236, md: 262 },
+                  display: { xs: 'none', sm: 'block' },
+                }}
+              >
+                <TechPanel label="delivery" status="Practice" dense>
+                  <PanelRow label="Arch record" value="required" marker="check" tone="accent" />
+                  <PanelRow label="Tests" value="per feature" marker="check" tone="accent" />
+                  <PanelRow label="Rollback" value="rehearsed" marker="check" tone="accent" />
+                </TechPanel>
+              </Box>
+
+              {/* Disciplines — bottom left. */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: { xs: '0%', lg: '2%' },
+                  left: { xs: '-2%', lg: '-7%' },
+                  width: { xs: 232, md: 268 },
+                  display: { xs: 'none', sm: 'block' },
+                }}
+              >
+                <TechPanel label="disciplines" status="4" statusTone="neutral" dense>
+                  {disciplineSummary.map((discipline) => (
+                    <Box
+                      key={discipline.name}
+                      sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, py: 0.5 }}
+                    >
+                      <Box
+                        aria-hidden="true"
+                        sx={{
+                          width: 5,
+                          height: 5,
+                          mt: '6px',
+                          flexShrink: 0,
+                          bgcolor: 'brandAzure',
+                        }}
+                      />
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography
+                          component="span"
+                          sx={{
+                            display: 'block',
+                            fontFamily: fonts.mono,
+                            fontSize: '0.75rem',
+                            color: 'text.primary',
+                          }}
+                        >
+                          {discipline.name}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            display: 'block',
+                            fontFamily: fonts.mono,
+                            fontSize: '0.6875rem',
+                            color: 'text.disabled',
+                          }}
+                        >
+                          {discipline.stack}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </TechPanel>
+              </Box>
             </Box>
           </Reveal>
+        </Box>
+
+        {/* ------------------------------------------------ Differentiators */}
+        <Box
+          component="dl"
+          sx={{
+            m: 0,
+            mt: { xs: 7, md: 10 },
+            pt: { xs: 4, md: 5 },
+            borderTop: '1px solid',
+            borderColor: 'hairline',
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' },
+            gap: { xs: 3, sm: 4, md: 6 },
+          }}
+        >
+          {heroDifferentiators.map((item, index) => (
+            <Reveal key={item.label} index={index} component="div">
+              <Typography variant="label" component="dt" sx={{ color: 'accentText', mb: 1.5 }}>
+                {item.label}
+              </Typography>
+              <Box component="dd" sx={{ m: 0 }}>
+                <Typography variant="h5" component="p">
+                  {item.value}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                  {item.detail}
+                </Typography>
+              </Box>
+            </Reveal>
+          ))}
         </Box>
       </Container>
     </Box>

@@ -95,18 +95,25 @@ request that was not sent.
 src/
   app/               App shell, router, error and layout boundaries
   components/
+    cards/           Content-aware cards: Service, Industry, CaseStudy, Blog,
+                     Solution, Numbered, TechGroup, ProcessTimeline
     common/          Reveal, Seo, Logo, SectionHeading, notices
     layout/          Section (tone system), PageHero, Footer
-    navigation/      Header, MegaPanel, MobileNav
+    navigation/      Header, MegaPanel, MobileNav, ThemeToggle
     sections/        Composed page sections (home/* and shared CallToAction)
-    visual/          BlockLattice canvas, Web3StackDiagram SVG
+    ui/              Design primitives: SurfaceCard, TechPanel, GridBackdrop,
+                     GlowBackdrop, CornerTicks, Eyebrow, IndexBadge, StatTile,
+                     TagRow, ArrowCue
+    visual/          BlockLattice canvas, NodeNetwork, CaseStudyGlyph,
+                     Web3StackDiagram
   config/            site.ts (env), navigation.ts (IA)
   data/              Structured content: services, solutions, industries,
                      caseStudies, careers, blog, process, technologies
   features/
-    assistant/       Nexa: engine, knowledge base, speech input, UI
+    assistant/       Nexa: engine, knowledge base, speech input, UI.
+                     NOT MOUNTED in V2 — see "Nexa assistant" below.
     contact/         ContactForm
-  hooks/             useInView, usePrefersReducedMotion
+  hooks/             useInView, usePrefersReducedMotion, useScrollProgress
   lib/               api.ts — the only place fetch is called
   theme/             tokens, palette, typography, components, a11y
   types/             content.ts — the content model
@@ -119,6 +126,35 @@ Rules that keep this maintainable:
 - **Colour, spacing, type and motion come from `src/theme/tokens.ts`.** No
   component invents a hex value.
 - **`Section` owns page background.** Nothing else sets one.
+- **Cards are `SurfaceCard`.** No page hand-rolls a border, fill and hover
+  treatment; changing the card language is a one-file change.
+- **Three layers, one direction of dependency.** `ui/` knows nothing about the
+  content model, `cards/` maps content onto `ui/`, and pages compose `cards/`.
+
+### Theming
+
+Dark is the default and the primary brand experience; light is the alternate.
+The choice lives on `<html data-color-scheme>`, is persisted by MUI's
+`useColorScheme` to `localStorage` under `mui-mode`, and is applied before first
+paint by a small inline script in `index.html`.
+
+- `Section`'s `tone` selects a **surface step**, never a colour scheme. Adding a
+  section that ignores the theme is therefore not possible through `tone`.
+- Header, footer and the closing CTA panel are the only surfaces that pin a
+  scheme. They stay dark in both themes because the logo lockup is unreadable on
+  white — see `docs/DESIGN_SYSTEM.md`.
+- Colours come from semantic palette tokens (`surfaceCanvas`, `surfaceBand`,
+  `cardSurface`, `gridLine`, `chromeScrim`, …), defined once per scheme in
+  `src/theme/palette.ts`. Components never hardcode a hex value.
+
+### Nexa assistant
+
+The assistant under `src/features/assistant/` is intact but **not mounted**.
+It was taken out of scope for V2 and will return as a separate phase with a
+more capable architecture behind it. Because nothing imports it, none of it
+reaches the bundle.
+
+To bring it back, render `<NexaAssistant />` in `src/app/RootLayout.tsx`.
 
 ---
 
@@ -259,6 +295,30 @@ because none have been supplied or verified. Where a conventional corporate site
 would show those, this one shows verifiable engineering practice instead. Replace
 with real, approved material when it is available — the components are already
 in place.
+
+---
+
+## Verification
+
+The V2 work was checked against a real browser rather than by eye. Chrome runs
+headless with `--remote-debugging-port=9222` and is driven over the DevTools
+Protocol from a dependency-free Node script (Node 24 ships a global
+`WebSocket`). The checks were:
+
+| Check | How |
+| --- | --- |
+| Horizontal overflow | Every element's `getBoundingClientRect` compared to the viewport at 375 / 768 / 1024 / 1440 |
+| Console errors | `Log.entryAdded` and `Runtime.exceptionThrown` collected per route |
+| Heading order | `h1`–`h6` walked for level skips and multiple `h1`s |
+| Text contrast | Foreground composited against the *actual painted* background, including translucent card fills, then measured against WCAG AA |
+| Reduced motion | `Emulation.setEmulatedMedia` with `prefers-reduced-motion: reduce`, then a count of live animations and transitions |
+| Focus visibility | Synthetic `Tab` presses, checking `outline` on each stop |
+| Dead links | Every `href` on every page resolved against the route table |
+| Theme coverage | Every `main > section`, header and footer sampled in both themes; any surface on the wrong side of the luminance midpoint that was not deliberately pinned is flagged |
+| Theme persistence | Fresh visit, click, reload, cross-route navigation and keyboard activation driven through the real toggle |
+
+No test dependency was added to the project for this; the scripts live outside
+the repository.
 
 ---
 

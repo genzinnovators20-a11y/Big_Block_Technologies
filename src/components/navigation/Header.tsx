@@ -10,13 +10,21 @@ import { primaryCta, primaryNav } from '@/config/navigation';
 import { layout, motion, zIndex } from '@/theme/tokens';
 import { MegaPanel } from './MegaPanel';
 import { MobileNav } from './MobileNav';
+import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Primary site header.
  *
- * Fixed, and always dark regardless of the tone of the section beneath it —
- * the brand artwork is light-on-transparent, and a header that inverts as the
- * page scrolls would make the logo illegible half the time.
+ * Deliberately keeps the dark brand chrome in *both* themes. This is a
+ * constraint of the artwork, not an oversight: the lockup sets "BIG" in the
+ * brand silver (#C8CACE) and "TECHNOLOGIES" in grey, which measure roughly
+ * 1.5:1 and 2.6:1 on white. No dark-ink variant of the logo exists, so a light
+ * header would render half the wordmark unreadable.
+ *
+ * To make that read as intentional rather than broken, the header is fully
+ * opaque in the light theme — a deliberate navy brand bar over a light page —
+ * while in the dark theme it keeps the transparent-over-hero treatment and
+ * only gains a scrim once the page scrolls.
  */
 export function Header() {
   const [openPanel, setOpenPanel] = useState<string | null>(null);
@@ -91,10 +99,22 @@ export function Header() {
           insetInline: 0,
           top: 0,
           zIndex: zIndex.header,
-          bgcolor: scrolled ? 'rgba(6, 11, 20, 0.88)' : 'transparent',
+          bgcolor: scrolled ? 'chromeScrim' : 'transparent',
           backdropFilter: scrolled ? 'saturate(180%) blur(12px)' : 'none',
           borderBottom: '1px solid',
           borderColor: scrolled || openPanel ? 'hairline' : 'transparent',
+          // In the light theme there is no dark hero behind the bar, so a
+          // transparent header would put light-scheme chrome text on a light
+          // page. Keyed off the root attribute rather than React state so it
+          // is correct on the very first paint.
+          // Fully opaque, not the scrolled scrim: a translucent bar over a
+          // light page lets scrolling content show through and reads as muddy.
+          // The header declares the dark scheme for itself, so this token
+          // resolves to the deep navy canvas.
+          '[data-color-scheme="light"] &': {
+            backgroundColor: 'var(--mui-palette-surfaceCanvas)',
+            backdropFilter: 'none',
+          },
           transition: `background-color ${motion.duration.base}ms ${motion.easing.standard}, border-color ${motion.duration.base}ms ${motion.easing.standard}`,
         }}
       >
@@ -195,6 +215,8 @@ export function Header() {
           </Box>
 
           <Box sx={{ flex: 1 }} />
+
+          <ThemeToggle />
 
           <Button
             component={RouterLink}

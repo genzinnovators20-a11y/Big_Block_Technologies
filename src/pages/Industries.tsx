@@ -8,15 +8,17 @@ import { Section } from '@/components/layout/Section';
 import { PageHero } from '@/components/layout/PageHero';
 import { Reveal } from '@/components/common/Reveal';
 import { CallToAction } from '@/components/sections/CallToAction';
+import { Eyebrow, IndexBadge, SurfaceCard, TagRow } from '@/components/ui';
 import { industries } from '@/data/industries';
-import { layout } from '@/theme/tokens';
+import { layout, radius } from '@/theme/tokens';
 
 /**
  * Industries.
  *
- * Framed as challenge → approach → systems. No claims about clients served or
- * years in a sector appear, because none can be substantiated; what is stated
- * is the engineering reasoning, which stands on its own.
+ * Framed as challenge, then approach, then the systems built. No claims about
+ * clients served or years in a sector appear, because none can be
+ * substantiated; what is stated is the engineering reasoning, which stands on
+ * its own.
  */
 export default function Industries() {
   return (
@@ -33,7 +35,7 @@ export default function Industries() {
         lede="A payments ledger and a streaming pipeline have almost nothing in common architecturally. What follows is the recurring engineering problem in each sector, and how we approach it."
       />
 
-      <Section tone="light" spacing="compact" aria-label="Industry index">
+      <Section tone="band" spacing="compact" aria-label="Industry index">
         <Reveal>
           <Typography variant="label" component="h2" sx={{ color: 'text.disabled', mb: 2.5 }}>
             Jump to
@@ -54,103 +56,110 @@ export default function Industries() {
         </Reveal>
       </Section>
 
-      <Section tone="ink" spacing="none" dividerTop aria-label="Industries">
-        <Box sx={{ py: { xs: 2, md: 3 } }}>
-          {industries.map((industry, index) => (
-            <Reveal
-              key={industry.slug}
-              component="article"
-              index={index % 2}
-              sx={{
-                scrollMarginTop: `${layout.headerHeight + 24}px`,
-                py: { xs: 4, md: 5.5 },
-                borderBottom: '1px solid',
-                borderColor: 'hairline',
-                '&:last-of-type': { borderBottom: 'none' },
-              }}
-            >
-              <Box
+      <Section tone="canvas" dividerTop aria-label="Industries">
+        <Box
+          component="ul"
+          sx={{
+            listStyle: 'none',
+            m: 0,
+            p: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: { xs: 2, md: 2.5 },
+          }}
+        >
+          {industries.map((industry, index) => {
+            const { Icon } = industry;
+
+            return (
+              <Reveal
+                key={industry.slug}
+                component="li"
+                index={index % 2}
+                variant="settle"
+                sx={{ scrollMarginTop: `${layout.headerHeight + 32}px` }}
                 id={industry.slug}
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', md: '250px minmax(0, 1.15fr) minmax(0, 0.85fr)' },
-                  gap: { xs: 2.5, md: 5 },
-                }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <SurfaceCard padding="lg">
                   <Box
-                    component="span"
-                    aria-hidden="true"
-                    sx={{ display: 'inline-flex', mt: '3px', color: 'accentText', flexShrink: 0 }}
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: {
+                        xs: '1fr',
+                        md: '230px minmax(0, 1.2fr) minmax(0, 0.85fr)',
+                      },
+                      gap: { xs: 3, md: 5 },
+                    }}
                   >
-                    <industry.Icon size={22} strokeWidth={1.75} />
-                  </Box>
-                  <Box>
-                    <Typography variant="h3" component="h2">
-                      {industry.name}
-                    </Typography>
-                    <Typography variant="label" component="p" sx={{ color: 'text.disabled', mt: 1 }}>
-                      {String(index + 1).padStart(2, '0')}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Typography variant="label" component="h3" sx={{ color: 'accentText', mb: 1.25 }}>
-                    The challenge
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    {industry.challenge}
-                  </Typography>
-
-                  <Typography
-                    variant="label"
-                    component="h3"
-                    sx={{ color: 'accentText', mt: 3, mb: 1.25 }}
-                  >
-                    Our approach
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                    {industry.approach}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography variant="label" component="h3" sx={{ color: 'text.disabled', mb: 1.5 }}>
-                    Systems we build
-                  </Typography>
-                  <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
-                    {industry.systems.map((system) => (
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
                       <Box
-                        component="li"
-                        key={system}
+                        aria-hidden="true"
                         sx={{
-                          py: 1,
-                          borderTop: '1px solid',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 44,
+                          height: 44,
+                          flexShrink: 0,
+                          borderRadius: `${radius.md}px`,
+                          border: '1px solid',
                           borderColor: 'hairline',
-                          fontSize: '0.9375rem',
-                          color: 'text.secondary',
+                          bgcolor: 'action.hover',
+                          color: 'accentText',
                         }}
                       >
-                        {system}
+                        <Icon size={21} strokeWidth={1.75} />
                       </Box>
-                    ))}
-                  </Box>
+                      <Box>
+                        <Typography variant="h3" component="h2">
+                          {industry.name}
+                        </Typography>
+                        <IndexBadge value={index} sx={{ display: 'block', mt: 1 }} />
+                      </Box>
+                    </Box>
 
-                  <Button
-                    component={RouterLink}
-                    to={`/contact?industry=${industry.slug}`}
-                    variant="text"
-                    size="small"
-                    endIcon={<ArrowRight size={14} strokeWidth={2} aria-hidden="true" />}
-                    sx={{ mt: 2, ml: -1.25 }}
-                  >
-                    Discuss {industry.name}
-                  </Button>
-                </Box>
-              </Box>
-            </Reveal>
-          ))}
+                    <Box>
+                      <Eyebrow rule={false} component="h3" sx={{ mb: 1.25 }}>
+                        The challenge
+                      </Eyebrow>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        {industry.challenge}
+                      </Typography>
+
+                      <Eyebrow rule={false} component="h3" sx={{ mt: 3, mb: 1.25 }}>
+                        Our approach
+                      </Eyebrow>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        {industry.approach}
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography
+                        variant="label"
+                        component="h3"
+                        sx={{ color: 'text.disabled', mb: 1.5 }}
+                      >
+                        Systems we build
+                      </Typography>
+                      <TagRow items={industry.systems} variant="bullet" />
+
+                      <Button
+                        component={RouterLink}
+                        to={`/contact?industry=${industry.slug}`}
+                        variant="outlined"
+                        size="small"
+                        endIcon={<ArrowRight size={14} strokeWidth={2} aria-hidden="true" />}
+                        sx={{ mt: 3 }}
+                      >
+                        Discuss {industry.name}
+                      </Button>
+                    </Box>
+                  </Box>
+                </SurfaceCard>
+              </Reveal>
+            );
+          })}
         </Box>
       </Section>
 

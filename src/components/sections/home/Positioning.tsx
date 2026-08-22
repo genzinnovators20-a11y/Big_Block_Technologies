@@ -2,30 +2,39 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Section } from '@/components/layout/Section';
 import { Reveal } from '@/components/common/Reveal';
+import { Eyebrow, IndexBadge, SurfaceCard, TagRow } from '@/components/ui';
+import { companyStatements } from '@/data/company';
 
 /**
  * Company positioning.
  *
- * The first light section on the page. The tonal switch after a dark hero is
- * deliberate — it marks a change from statement to explanation, and stops the
- * page reading as one undifferentiated dark canvas.
+ * The first light section on the page. The tonal switch after a dark hero
+ * marks the change from statement to explanation, and stops the page reading
+ * as one undifferentiated dark canvas.
+ *
+ * The three statement cards restate commitments made elsewhere on the site
+ * rather than introducing new claims — there is no founding date, headcount or
+ * client count here, because none can be substantiated.
  */
 export function Positioning() {
   return (
-    <Section tone="light" aria-labelledby="positioning-heading">
+    <Section tone="band" aria-labelledby="positioning-heading">
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) minmax(0, 1fr)' },
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 0.9fr) minmax(0, 1.1fr)' },
           gap: { xs: 5, md: 10 },
           alignItems: 'start',
         }}
       >
         <Reveal>
-          <Typography variant="label" component="p" sx={{ color: 'accentText', mb: 3 }}>
-            Who we are
-          </Typography>
-          <Typography variant="h2" component="h2" id="positioning-heading" sx={{ textWrap: 'balance' }}>
+          <Eyebrow sx={{ mb: 3 }}>Who we are</Eyebrow>
+          <Typography
+            variant="h2"
+            component="h2"
+            id="positioning-heading"
+            sx={{ textWrap: 'balance' }}
+          >
             An engineering practice, not a delivery vendor.
           </Typography>
         </Reveal>
@@ -51,6 +60,57 @@ export function Positioning() {
             </Typography>
           </Box>
         </Reveal>
+      </Box>
+
+      <Box
+        sx={{
+          mt: { xs: 6, md: 9 },
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+          gap: { xs: 2.5, md: 3 },
+        }}
+      >
+        {companyStatements.map((statement, index) => (
+          <Reveal key={statement.id} index={index} variant="settle">
+            <SurfaceCard padding="lg" sx={{ gap: 2 }}>
+              <Box
+                aria-hidden="true"
+                sx={{ width: 28, height: '2px', bgcolor: 'brandAzure', mb: 0.5 }}
+              />
+
+              <Typography variant="h4" component="h3">
+                {statement.title}
+              </Typography>
+
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {statement.body}
+              </Typography>
+
+              {statement.items && <TagRow items={statement.items} size="sm" sx={{ pt: 0.5 }} />}
+
+              {/* Indexed footer rule. The three cards have very different body
+                  lengths, and stretching them to a shared height left the two
+                  shorter ones with a pool of dead space at the bottom. Pinning
+                  a rule there gives that space a job. */}
+              <Box
+                sx={{
+                  mt: 'auto',
+                  pt: 2.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  borderTop: '1px solid',
+                  borderColor: 'hairline',
+                }}
+              >
+                <IndexBadge value={index} size="sm" />
+                <Typography variant="label" component="span" sx={{ color: 'text.disabled' }}>
+                  {statement.id}
+                </Typography>
+              </Box>
+            </SurfaceCard>
+          </Reveal>
+        ))}
       </Box>
     </Section>
   );

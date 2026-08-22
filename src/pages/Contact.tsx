@@ -96,7 +96,7 @@ export default function Contact() {
         lede={heroLede}
       />
 
-      <Section tone="light" aria-labelledby="form-heading">
+      <Section tone="band" aria-labelledby="form-heading">
         <Typography variant="h2" component="h2" id="form-heading" sx={visuallyHidden}>
           Enquiry form
         </Typography>
@@ -208,7 +208,7 @@ export default function Contact() {
         </Box>
       </Section>
 
-      <Section tone="deep" dividerTop aria-labelledby="contact-faq-heading">
+      <Section tone="alt" dividerTop aria-labelledby="contact-faq-heading">
         <SectionHeading
           eyebrow="Common questions"
           id="contact-faq-heading"

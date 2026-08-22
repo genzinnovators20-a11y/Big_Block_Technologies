@@ -16,9 +16,14 @@ import { siteConfig } from '@/config/site';
 /**
  * Homepage.
  *
- * Section order alternates tone deliberately — ink, light, deep, panel, light,
- * deep, paper, ink, panel, light, deep, ink — so no two adjacent sections read
- * the same, and the page has rhythm rather than uniform darkness.
+ * The visual benchmark for the site: every other page borrows its components
+ * and none exceeds its density.
+ *
+ * Section order runs statement -> explanation -> capability -> specialisation
+ * -> proof -> ask, so evidence arrives before the request. Tone alternates
+ * across ink, light, paper, deep and panel, and no two adjacent sections share
+ * a construction either — grid, rail, split and timeline rotate — which is
+ * what stops a long page reading as one repeated template.
  */
 export default function Home() {
   return (
@@ -48,13 +53,13 @@ export default function Home() {
       <Positioning />
       <Capabilities />
       <BlockchainPractice />
-      <Process />
       <TechnologyStrip />
       <IndustriesGrid />
-      <FeaturedWork />
+      <Process />
       <Principles />
-      <InsightsTeaser />
+      <FeaturedWork />
       <CareersTeaser />
+      <InsightsTeaser />
       <CallToAction />
     </>
   );

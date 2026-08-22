@@ -1,22 +1,21 @@
-import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
-import { ArrowRight } from 'lucide-react';
 import { Seo } from '@/components/common/Seo';
 import { Section } from '@/components/layout/Section';
 import { PageHero } from '@/components/layout/PageHero';
 import { Reveal } from '@/components/common/Reveal';
 import { IllustrativeNotice } from '@/components/common/IllustrativeNotice';
 import { CallToAction } from '@/components/sections/CallToAction';
+import { CaseStudyCard } from '@/components/cards';
 import { caseStudies } from '@/data/caseStudies';
-import { motion } from '@/theme/tokens';
+import { visuallyHidden } from '@/theme/a11y';
 
 /**
  * Engagement patterns index.
  *
- * The disclosure sits above the list, not buried at the bottom, because the
- * reader needs it before they interpret anything below.
+ * The disclosure sits in the hero, above everything else, because a reader
+ * needs it before they interpret anything below — not in small print at the
+ * foot of the page, after they have already formed an impression.
  */
 export default function CaseStudies() {
   return (
@@ -34,86 +33,37 @@ export default function CaseStudies() {
         aside={<IllustrativeNotice />}
       />
 
-      <Section tone="light" aria-label="Engagement patterns">
-        <Box sx={{ borderTop: '1px solid', borderColor: 'hairline' }}>
+      <Section tone="band" aria-labelledby="engagements-heading">
+        {/* The cards are h3s. Without this the page would run h1 -> h3, which
+            is a level skip for anyone navigating by headings. */}
+        <Typography variant="h2" component="h2" id="engagements-heading" sx={visuallyHidden}>
+          Engagement patterns
+        </Typography>
+
+        <Box
+          component="ul"
+          sx={{
+            listStyle: 'none',
+            m: 0,
+            p: 0,
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, minmax(0, 1fr))',
+              lg: 'repeat(3, minmax(0, 1fr))',
+            },
+            gap: { xs: 2.5, md: 3 },
+          }}
+        >
           {caseStudies.map((study, index) => (
-            <Reveal key={study.slug} index={index % 2}>
-              <Box
-                component={RouterLink}
-                to={`/case-studies/${study.slug}`}
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', md: '64px minmax(0, 1fr) minmax(0, 1fr)' },
-                  gap: { xs: 2, md: 4 },
-                  py: { xs: 4, md: 5 },
-                  borderBottom: '1px solid',
-                  borderColor: 'hairline',
-                  transition: `background-color ${motion.duration.fast}ms ${motion.easing.standard}`,
-                  '&:hover': { bgcolor: 'action.hover' },
-                  '&:hover .cs-title': { color: 'primary.main' },
-                  '&:hover .cs-arrow': { opacity: 1, transform: 'translateX(0)' },
-                }}
-              >
-                <Typography
-                  variant="label"
-                  component="span"
-                  sx={{ color: 'accentText', display: { xs: 'none', md: 'block' }, pt: '6px' }}
-                >
-                  {String(index + 1).padStart(2, '0')}
-                </Typography>
-
-                <Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                    <Typography variant="label" component="span" sx={{ color: 'text.disabled' }}>
-                      {study.sector}
-                    </Typography>
-                    <Box
-                      aria-hidden="true"
-                      sx={{ width: 3, height: 3, bgcolor: 'text.disabled', flexShrink: 0 }}
-                    />
-                    <Typography variant="label" component="span" sx={{ color: 'text.disabled' }}>
-                      {study.engagement}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                    <Typography
-                      className="cs-title"
-                      variant="h3"
-                      component="h2"
-                      sx={{ transition: `color ${motion.duration.fast}ms ${motion.easing.standard}` }}
-                    >
-                      {study.title}
-                    </Typography>
-                    <Box
-                      className="cs-arrow"
-                      component="span"
-                      aria-hidden="true"
-                      sx={{
-                        display: 'inline-flex',
-                        mt: '8px',
-                        color: 'accentText',
-                        opacity: 0,
-                        transform: 'translateX(-4px)',
-                        transition: `opacity ${motion.duration.fast}ms ${motion.easing.standard}, transform ${motion.duration.fast}ms ${motion.easing.standard}`,
-                      }}
-                    >
-                      <ArrowRight size={18} strokeWidth={2} />
-                    </Box>
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {study.challenge}
-                  </Typography>
-                  <Box sx={{ mt: 2.5, display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                    {study.stack.slice(0, 5).map((tech) => (
-                      <Chip key={tech} label={tech} size="small" />
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
+            <Reveal
+              key={study.slug}
+              index={index}
+              variant="settle"
+              component="li"
+              sx={{ height: '100%' }}
+            >
+              <CaseStudyCard study={study} />
             </Reveal>
           ))}
         </Box>

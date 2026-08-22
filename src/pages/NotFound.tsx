@@ -44,7 +44,7 @@ export default function NotFound() {
         </Box>
       </PageHero>
 
-      <Section tone="light" aria-labelledby="destinations-heading">
+      <Section tone="band" aria-labelledby="destinations-heading">
         <Typography variant="label" component="h2" id="destinations-heading" sx={{ color: 'text.disabled', mb: 3 }}>
           Main sections
         </Typography>

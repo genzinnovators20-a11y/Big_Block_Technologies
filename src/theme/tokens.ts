@@ -24,12 +24,16 @@ export const brand = {
 /**
  * Ink scale — the dark foundation. Cool, blue-shifted neutrals rather than
  * pure greys so dark surfaces stay related to the brand blue.
+ *
+ * Note the absence of pure black. The darkest step is #060B14, which still
+ * carries blue in it: a deep-navy technology brand, not an OLED gaming theme.
  */
 export const ink = {
   950: '#060B14',
   900: '#0A111E',
   850: '#0E1729',
   800: '#131F35',
+  780: '#172440',
   700: '#1B2942',
   600: '#243452',
   500: '#334765',
@@ -38,7 +42,9 @@ export const ink = {
 /** Cool neutral scale for light surfaces. */
 export const slate = {
   50: '#F7F9FC',
+  75: '#F3F6FB',
   100: '#F0F4F9',
+  150: '#E9EFF7',
   200: '#E3EAF3',
   300: '#D2DCE9',
   400: '#A9B6CB',
@@ -88,8 +94,8 @@ export const layout = {
   /** Fluid horizontal page gutter. */
   gutter: 'clamp(20px, 4vw, 48px)',
   /** Fluid vertical rhythm between major page sections. */
-  sectionPaddingY: 'clamp(72px, 9vw, 140px)',
-  sectionPaddingYCompact: 'clamp(48px, 6vw, 88px)',
+  sectionPaddingY: 'clamp(64px, 9vw, 140px)',
+  sectionPaddingYCompact: 'clamp(44px, 6vw, 88px)',
   headerHeight: 72,
   headerHeightCondensed: 60,
 } as const;
@@ -174,6 +180,47 @@ export const motion = {
   },
   /** Delay between successive items in a staggered reveal. */
   stagger: 60,
+  /**
+   * Ceiling on stagger index. A twelve-card grid staggered linearly would make
+   * the last card arrive 720ms after the first, which reads as the page still
+   * loading. Capping at six keeps the whole group under 360ms.
+   */
+  staggerCap: 6,
+} as const;
+
+/* -------------------------------------------------------------------------
+ * Surface treatment
+ *
+ * V2 depth language. A card is a plate of material with a lit top edge, not a
+ * floating sheet — so the recurring treatment is border + tone + a single
+ * hairline highlight, and shadows stay almost absent.
+ * ---------------------------------------------------------------------- */
+
+export const surface = {
+  /** Corner-tick size on technical figures. */
+  tickSize: 14,
+  /**
+   * Duration of the light/dark cross-fade.
+   *
+   * Short enough that the switch feels instant, long enough that it does not
+   * read as a flash. Applied only while a switch is in flight — see
+   * `data-theme-switching` in the component layer.
+   */
+  themeSwitchMs: 200,
+  /** Distance a card lifts on hover. Small enough to read as material. */
+  hoverLift: -3,
+  /**
+   * Inner padding ramp for cards, tightened on small screens.
+   *
+   * Desktop padding applied verbatim at 375px wastes horizontal measure and
+   * pushes an already long page longer — a twelve-card grid pays the
+   * difference twelve times over.
+   */
+  padding: {
+    sm: { xs: 2, md: 2.5 },
+    md: { xs: 2.5, md: 3 },
+    lg: { xs: 3, md: 4 },
+  },
 } as const;
 
 /* -------------------------------------------------------------------------

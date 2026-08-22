@@ -114,7 +114,7 @@ export default function BlogPost() {
         lede={post.excerpt}
       />
 
-      <Section tone="light" aria-label="Article">
+      <Section tone="band" aria-label="Article">
         <Box
           component="article"
           sx={{
@@ -138,7 +138,7 @@ export default function BlogPost() {
         </Box>
       </Section>
 
-      <Section tone="deep" spacing="compact" dividerTop aria-label="More insights">
+      <Section tone="alt" spacing="compact" dividerTop aria-label="More insights">
         <Box
           sx={{
             display: 'flex',

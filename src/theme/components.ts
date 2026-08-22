@@ -1,5 +1,5 @@
 import type { Components, Theme } from '@mui/material/styles';
-import { fonts, layout, motion, radius } from './tokens';
+import { fonts, layout, motion, radius, surface } from './tokens';
 
 const transition = (props: string[], ms: number = motion.duration.base) =>
   props.map((p) => `${p} ${ms}ms ${motion.easing.standard}`).join(', ');
@@ -32,6 +32,27 @@ export const components: Components<Theme> = {
         backgroundColor: theme.vars.palette.background.default,
       },
 
+      /**
+       * Theme cross-fade.
+       *
+       * Present only while a switch is in flight — `ThemeToggle` adds the
+       * attribute and removes it ~240ms later. Scoping it this way means the
+       * document does not carry a permanent `transition` on every element,
+       * which would both cost paint time on scroll and make component hover
+       * states feel sluggish.
+       *
+       * `!important` is load-bearing here and deliberately confined to this
+       * one rule: it has to outrank the per-component transitions for the
+       * duration of the switch, otherwise a card would cross-fade its border
+       * at its own 200ms hover timing and the page would arrive in pieces.
+       * Only paint properties are listed — nothing here can trigger layout.
+       */
+      '[data-theme-switching]': {
+        '&, & *, & *::before, & *::after': {
+          transition: `background-color ${surface.themeSwitchMs}ms ${motion.easing.inOut}, border-color ${surface.themeSwitchMs}ms ${motion.easing.inOut}, color ${surface.themeSwitchMs}ms ${motion.easing.inOut}, fill ${surface.themeSwitchMs}ms ${motion.easing.inOut}, box-shadow ${surface.themeSwitchMs}ms ${motion.easing.inOut} !important`,
+        },
+      },
+
       // Respect the user's motion preference globally. Individual components
       // additionally read the preference so they can skip the work entirely.
       '@media (prefers-reduced-motion: reduce)': {
@@ -41,6 +62,10 @@ export const components: Components<Theme> = {
           animationIterationCount: '1 !important',
           transitionDuration: '0.01ms !important',
           scrollBehavior: 'auto !important',
+        },
+        // The theme switch becomes instant rather than a fade.
+        '[data-theme-switching], [data-theme-switching] *': {
+          transition: 'none !important',
         },
       },
 
@@ -94,6 +119,19 @@ export const components: Components<Theme> = {
     // Material's ink ripple is the single strongest "this is a stock MUI site"
     // signal. Replaced by precise colour and border state changes.
     defaultProps: { disableRipple: true },
+    styleOverrides: {
+      root: ({ theme }) => ({
+        // MUI's own ButtonBase reset declares `outline: 0` from a class
+        // selector, which outranks the bare `:focus-visible` rule in
+        // CssBaseline. The result was that plain links showed a focus ring and
+        // every button — including all the calls to action — showed nothing at
+        // all to a keyboard user. Re-declaring it here restores parity.
+        '&.Mui-focusVisible': {
+          outline: `2px solid ${theme.vars.palette.brandAzure}`,
+          outlineOffset: 2,
+        },
+      }),
+    },
   },
 
   MuiButton: {

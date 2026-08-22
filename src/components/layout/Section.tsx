@@ -7,28 +7,36 @@ import { layout } from '@/theme/tokens';
 /**
  * Tonal register of a section.
  *
- * The site alternates between these deliberately. A page that is one
- * uninterrupted dark canvas has no hierarchy; alternating tone is what makes
- * a long corporate page readable and gives each section a reason to feel
- * distinct from its neighbour.
+ * Five steps of tonal distance from the page canvas. The site alternates
+ * between them deliberately: a page that is one uninterrupted surface has no
+ * hierarchy, and alternating tone is what makes a long corporate page readable.
+ *
+ * These names describe *distance from the canvas*, not lightness, which is the
+ * whole point. The previous names — `ink`, `light`, `paper` — encoded a colour
+ * scheme, and `Section` acted on that by pinning `data-color-scheme` per
+ * section. That made a global theme toggle impossible: nineteen of the site's
+ * thirty-eight sections were hard-wired to a light scheme and would have
+ * ignored the switch entirely.
+ *
+ * Now the scheme comes from the root and only the *step* comes from the tone,
+ * so one set of section tones produces a coherent rhythm in either theme.
  */
-export type SectionTone = 'ink' | 'deep' | 'panel' | 'light' | 'paper';
+export type SectionTone = 'canvas' | 'alt' | 'raised' | 'band' | 'contrast';
 
-const LIGHT_TONES: SectionTone[] = ['light', 'paper'];
-
-/** Each tone resolves to a palette variable, so one tone name produces the
- *  correct surface in whichever colour scheme the section activates. */
+/** Each tone resolves to a semantic surface token defined per colour scheme. */
 const toneSurface = (theme: Theme, tone: SectionTone) => {
   switch (tone) {
-    case 'deep':
-    case 'paper':
-      return theme.vars.palette.background.paper;
-    case 'panel':
+    case 'alt':
+      return theme.vars.palette.surfaceAlt;
+    case 'raised':
       return theme.vars.palette.surfaceRaised;
-    case 'ink':
-    case 'light':
+    case 'band':
+      return theme.vars.palette.surfaceBand;
+    case 'contrast':
+      return theme.vars.palette.surfaceContrast;
+    case 'canvas':
     default:
-      return theme.vars.palette.background.default;
+      return theme.vars.palette.surfaceCanvas;
   }
 };
 
@@ -54,14 +62,13 @@ interface SectionProps {
 /**
  * The page section primitive.
  *
- * Setting `data-color-scheme` here re-declares every MUI palette custom
- * property for the subtree, so components rendered inside a light section pick
- * up light colours automatically — no nested ThemeProvider, no manual colour
- * props, and no chance of a dark input landing on a white card.
+ * Owns the page background and nothing else does. It reads the active colour
+ * scheme from the root rather than declaring one, so every section follows the
+ * theme toggle; `tone` selects only how far the section sits from the canvas.
  */
 export function Section({
   children,
-  tone = 'ink',
+  tone = 'canvas',
   spacing = 'default',
   dividerTop = false,
   grid = false,
@@ -72,8 +79,6 @@ export function Section({
   containerSx,
   ...rest
 }: SectionProps) {
-  const isLight = LIGHT_TONES.includes(tone);
-
   const paddingY =
     spacing === 'none'
       ? 0
@@ -85,7 +90,6 @@ export function Section({
     <Box
       component={component}
       id={id}
-      data-color-scheme={isLight ? 'light' : 'dark'}
       data-tone={tone}
       sx={[
         (theme) => ({
@@ -104,7 +108,7 @@ export function Section({
               position: 'absolute',
               inset: 0,
               pointerEvents: 'none',
-              backgroundImage: `linear-gradient(to right, ${theme.vars.palette.hairline} 1px, transparent 1px), linear-gradient(to bottom, ${theme.vars.palette.hairline} 1px, transparent 1px)`,
+              backgroundImage: `linear-gradient(to right, ${theme.vars.palette.gridLine} 1px, transparent 1px), linear-gradient(to bottom, ${theme.vars.palette.gridLine} 1px, transparent 1px)`,
               backgroundSize: '72px 72px',
               maskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 78%)',
               WebkitMaskImage:

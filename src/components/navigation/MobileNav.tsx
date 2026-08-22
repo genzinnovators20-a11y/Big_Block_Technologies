@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { ArrowUpRight, X } from 'lucide-react';
 import { Logo } from '@/components/common/Logo';
+import { ThemeToggle } from './ThemeToggle';
 import { mobileNav, primaryCta } from '@/config/navigation';
 import { contactConfig } from '@/config/site';
 import { motion } from '@/theme/tokens';
@@ -35,12 +36,17 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
       aria-label="Site navigation"
     >
       <Box
+        // Part of the header chrome, so it stays dark in both themes.
         data-color-scheme="dark"
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100%',
-          bgcolor: 'background.default',
+          // Full height rather than min-height so the link list becomes the
+          // only scrolling region. Previously the whole drawer scrolled, which
+          // put "Start a Project" below the fold on a short phone — and adding
+          // the theme row pushed it further down still.
+          height: '100%',
+          bgcolor: 'surfaceCanvas',
           // Keeps content clear of the notch and the gesture bar.
           pt: 'env(safe-area-inset-top)',
           pb: 'env(safe-area-inset-bottom)',
@@ -63,7 +69,20 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           </IconButton>
         </Box>
 
-        <Box component="nav" aria-label="Mobile" sx={{ flex: 1, px: 3, py: 4 }}>
+        <Box
+          component="nav"
+          aria-label="Mobile"
+          sx={{
+            flex: 1,
+            // `minHeight: 0` is what actually lets a flex child scroll; without
+            // it the item shrinks to its content and the overflow never engages.
+            minHeight: 0,
+            overflowY: 'auto',
+            overscrollBehavior: 'contain',
+            px: 3,
+            py: 4,
+          }}
+        >
           {mobileNav.map((group, groupIndex) => (
             <Box key={group.section} sx={{ mb: groupIndex === mobileNav.length - 1 ? 0 : 5 }}>
               <Typography variant="label" component="p" sx={{ color: 'text.disabled', mb: 1.5 }}>
@@ -121,7 +140,23 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           ))}
         </Box>
 
-        <Box sx={{ px: 3, pb: 4, pt: 2, borderTop: '1px solid', borderColor: 'hairline' }}>
+        <Box
+          sx={{
+            flexShrink: 0,
+            px: 3,
+            pb: 4,
+            pt: 2,
+            borderTop: '1px solid',
+            borderColor: 'hairline',
+          }}
+        >
+          {/* Also present as an icon in the header bar, but a labelled row is
+              far more discoverable on a phone — and the drawer is where a
+              mobile visitor looks for settings-like controls. */}
+          <Box sx={{ mb: 2, mx: -1.5 }}>
+            <ThemeToggle variant="row" />
+          </Box>
+
           <Button component={RouterLink} to={primaryCta.href} onClick={onClose} fullWidth size="large">
             {primaryCta.label}
           </Button>

@@ -1,7 +1,39 @@
 import { useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import type { SxProps, Theme } from '@mui/material/styles';
+import { useColorScheme } from '@mui/material/styles';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+
+/**
+ * Face colours per theme.
+ *
+ * Not an inversion. In the dark theme the blocks are lighter than the canvas
+ * and read as lit masses; in the light theme they are *darker* than the canvas
+ * and read as a solid object casting its own shade. Both keep the brand azure
+ * on the leading edge, which is what makes them recognisably the same artwork.
+ */
+const LATTICE = {
+  dark: {
+    top: [30, 58, 100] as const,
+    topLit: [26, 74, 132] as const,
+    topLitGain: [10, 90, 108] as const,
+    left: [10, 22, 42] as const,
+    right: [18, 40, 74] as const,
+    edgeAlpha: 0.24,
+    baseAlpha: 0.55,
+    depthGain: 0.4,
+  },
+  light: {
+    top: [176, 199, 227] as const,
+    topLit: [96, 148, 214] as const,
+    topLitGain: [40, 50, 40] as const,
+    left: [70, 104, 156] as const,
+    right: [122, 156, 202] as const,
+    edgeAlpha: 0.32,
+    baseAlpha: 0.62,
+    depthGain: 0.32,
+  },
+} as const;
 
 interface BlockLatticeProps {
   /** Grid size along each axis of the isometric plane. */
@@ -24,6 +56,10 @@ interface BlockLatticeProps {
 export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const { colorScheme } = useColorScheme();
+  // `colorScheme` is undefined until the provider reads storage; dark is the
+  // default mode, so assuming it avoids a repaint on first mount.
+  const scheme = colorScheme === 'light' ? 'light' : 'dark';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,8 +69,17 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
     // rather than throwing. The hero reads fine without it.
     if (!ctx) return;
 
+    // `frame` is the live rAF handle (0 when no loop is scheduled) and
+    // `onScreen` tracks visibility. Painting and looping are kept separate:
+    // conflating them meant a resize that happened while the canvas was
+    // off-screen cleared the buffer and then skipped the redraw, leaving the
+    // artwork permanently blank — which is exactly what a reduced-motion user
+    // saw after scrolling past the hero and back.
+    const palette = LATTICE[scheme];
+
     let frame = 0;
-    let running = true;
+    let onScreen = true;
+    let lastTime = 0;
     let width = 0;
     let height = 0;
 
@@ -63,8 +108,9 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const draw = (time: number) => {
-      if (!running) return;
+    /** Paints one frame. Always paints; never schedules. */
+    const paint = (time: number) => {
+      lastTime = time;
       ctx.clearRect(0, 0, width, height);
 
       // Fit the lattice to the shorter axis so it never overflows its box.
@@ -79,8 +125,12 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
       // Sweep travels along the x+y diagonal, the natural reading direction
       // of an isometric plane.
       const period = 7200;
+      // Under reduced motion the sweep is parked mid-structure rather than
+      // pushed off the grid: the lattice still reads as lit and dimensional,
+      // it simply stops moving. Parking it at -99 (the previous behaviour)
+      // left an almost invisible flat plate.
       const sweep = reducedMotion
-        ? -99
+        ? (columns + rows) * 0.46
         : ((time % period) / period) * (columns + rows + 8) - 4;
 
       for (let y = 0; y < rows; y += 1) {
@@ -97,7 +147,7 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
           const lit = Math.max(0, 1 - d / 2.6);
 
           const depth = 1 - (x + y) / (columns + rows);
-          const baseAlpha = 0.30 + depth * 0.42;
+          const baseAlpha = palette.baseAlpha + depth * palette.depthGain;
 
           // Top face
           ctx.beginPath();
@@ -106,9 +156,12 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
           ctx.lineTo(sx0, sy0 + tileH);
           ctx.lineTo(sx0 - tileW / 2, sy0 + tileH / 2);
           ctx.closePath();
-          ctx.fillStyle = lit > 0.01
-            ? `rgba(${Math.round(14 + lit * 0)}, ${Math.round(52 + lit * 69)}, ${Math.round(96 + lit * 144)}, ${baseAlpha + lit * 0.3})`
-            : `rgba(22, 35, 58, ${baseAlpha})`;
+          // Top face catches the light, so it carries the brand blue and takes
+          // the full lift from the sweep.
+          ctx.fillStyle =
+            lit > 0.01
+              ? `rgba(${Math.round(palette.topLit[0] + lit * palette.topLitGain[0])}, ${Math.round(palette.topLit[1] + lit * palette.topLitGain[1])}, ${Math.round(palette.topLit[2] + lit * palette.topLitGain[2])}, ${Math.min(1, baseAlpha + lit * 0.35)})`
+              : `rgba(${palette.top[0]}, ${palette.top[1]}, ${palette.top[2]}, ${baseAlpha})`;
           ctx.fill();
 
           // Left face — the shadowed side.
@@ -118,7 +171,7 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
           ctx.lineTo(sx0, sy0 + tileH + z);
           ctx.lineTo(sx0 - tileW / 2, sy0 + tileH / 2 + z);
           ctx.closePath();
-          ctx.fillStyle = `rgba(8, 15, 27, ${baseAlpha + 0.12})`;
+          ctx.fillStyle = `rgba(${palette.left[0]}, ${palette.left[1]}, ${palette.left[2]}, ${Math.min(1, baseAlpha + 0.2)})`;
           ctx.fill();
 
           // Right face
@@ -128,7 +181,7 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
           ctx.lineTo(sx0, sy0 + tileH + z);
           ctx.lineTo(sx0 + tileW / 2, sy0 + tileH / 2 + z);
           ctx.closePath();
-          ctx.fillStyle = `rgba(13, 25, 43, ${baseAlpha + 0.06})`;
+          ctx.fillStyle = `rgba(${palette.right[0]}, ${palette.right[1]}, ${palette.right[2]}, ${Math.min(1, baseAlpha + 0.14)})`;
           ctx.fill();
 
           // Leading edge, brightened as the sweep passes.
@@ -138,21 +191,39 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
           ctx.lineTo(sx0, sy0 + tileH);
           ctx.lineTo(sx0 - tileW / 2, sy0 + tileH / 2);
           ctx.closePath();
-          ctx.strokeStyle = `rgba(0, 121, 240, ${0.10 + lit * 0.55})`;
+          ctx.strokeStyle = `rgba(0, 121, 240, ${palette.edgeAlpha + lit * 0.6})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
       }
 
-      if (!reducedMotion) frame = requestAnimationFrame(draw);
+    };
+
+    /** One step of the animation loop. */
+    const loop = (time: number) => {
+      paint(time);
+      frame = onScreen && !reducedMotion ? requestAnimationFrame(loop) : 0;
+    };
+
+    const start = () => {
+      if (frame || reducedMotion || !onScreen) return;
+      frame = requestAnimationFrame(loop);
+    };
+
+    const stop = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
     };
 
     resize();
-    draw(0);
+    paint(0);
+    start();
 
     const observer = new ResizeObserver(() => {
       resize();
-      if (reducedMotion) draw(0);
+      // `resize` resets the backing store, which clears it. Repaint whatever
+      // the last frame was, regardless of whether the loop is running.
+      paint(lastTime);
     });
     observer.observe(canvas);
 
@@ -162,13 +233,9 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
     if (typeof IntersectionObserver !== 'undefined') {
       visibility = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting && !running) {
-            running = true;
-            if (!reducedMotion) frame = requestAnimationFrame(draw);
-          } else if (!entry.isIntersecting && running) {
-            running = false;
-            cancelAnimationFrame(frame);
-          }
+          onScreen = entry.isIntersecting;
+          if (onScreen) start();
+          else stop();
         },
         { threshold: 0 },
       );
@@ -176,12 +243,12 @@ export function BlockLattice({ columns = 11, rows = 11, sx }: BlockLatticeProps)
     }
 
     return () => {
-      running = false;
-      cancelAnimationFrame(frame);
+      onScreen = false;
+      stop();
       observer.disconnect();
       visibility?.disconnect();
     };
-  }, [columns, rows, reducedMotion]);
+  }, [columns, rows, reducedMotion, scheme]);
 
   return (
     <Box

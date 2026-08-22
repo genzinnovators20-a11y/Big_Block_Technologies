@@ -18,6 +18,35 @@
     <meta name="theme-color" content="#060B14" />
     <meta name="color-scheme" content="dark light" />
 
+    <!--
+      Applies the saved theme before first paint.
+
+      MUI writes the chosen mode to localStorage under `mui-mode` and sets
+      `data-color-scheme` on <html> once React mounts. Without this, a visitor
+      who chose the light theme would see a dark flash on every page load while
+      the bundle parses. Ten lines inline beats any dependency for that.
+
+      Dark is the product default: with no stored choice we do NOT fall back to
+      the operating system, because the brand experience is dark-first. The OS
+      preference is honoured only if the visitor explicitly selects "system".
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('mui-mode');
+          var mode = stored === 'light' || stored === 'dark' ? stored
+            : stored === 'system'
+              ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+              : 'dark';
+          document.documentElement.setAttribute('data-color-scheme', mode);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', mode === 'light' ? '#FFFFFF' : '#060B14');
+        } catch (e) {
+          /* Private mode or blocked storage: the dark default already applies. */
+        }
+      })();
+    </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",

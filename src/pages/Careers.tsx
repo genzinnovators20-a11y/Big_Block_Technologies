@@ -12,6 +12,7 @@ import { PageHero } from '@/components/layout/PageHero';
 import { SectionHeading } from '@/components/common/SectionHeading';
 import { Reveal } from '@/components/common/Reveal';
 import { CallToAction } from '@/components/sections/CallToAction';
+import { SurfaceCard, TagRow } from '@/components/ui';
 import { careerFaqs, cultureValues, disciplines, hiringSteps, openRoles } from '@/data/careers';
 import { contactConfig } from '@/config/site';
 import { fonts } from '@/theme/tokens';
@@ -27,15 +28,17 @@ function OpenRoles() {
   if (openRoles.length === 0) {
     return (
       <Reveal>
-        <Box
+        <SurfaceCard
+          padding="lg"
+          highlight={false}
           sx={{
-            p: { xs: 4, md: 6 },
-            border: '1px dashed',
+            borderStyle: 'dashed',
             borderColor: 'hairlineStrong',
-            borderRadius: 1,
             textAlign: 'center',
+            alignItems: 'center',
             maxWidth: 640,
             mx: 'auto',
+            py: { xs: 5, md: 7 },
           }}
         >
           <Box
@@ -73,7 +76,7 @@ function OpenRoles() {
               </Box>
             </Typography>
           )}
-        </Box>
+        </SurfaceCard>
       </Reveal>
     );
   }
@@ -138,7 +141,7 @@ export default function Careers() {
       />
 
       {/* --------------------------------------------------------- Culture */}
-      <Section tone="light" aria-labelledby="culture-heading">
+      <Section tone="band" aria-labelledby="culture-heading">
         <SectionHeading
           eyebrow="Engineering culture"
           id="culture-heading"
@@ -147,41 +150,40 @@ export default function Careers() {
         />
 
         <Box
+          component="ul"
           sx={{
-            mt: { xs: 6, md: 8 },
+            listStyle: 'none',
+            m: 0,
+            mt: { xs: 5, md: 7 },
+            p: 0,
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
-            gap: 0,
-            borderTop: '1px solid',
-            borderColor: 'hairline',
+            gap: { xs: 2, md: 2.5 },
           }}
         >
           {cultureValues.map((value, index) => (
             <Reveal
               key={value.title}
-              index={index % 2}
-              sx={{
-                py: 4,
-                pr: { md: index % 2 === 0 ? 6 : 0 },
-                pl: { md: index % 2 === 1 ? 6 : 0 },
-                borderBottom: '1px solid',
-                borderColor: 'hairline',
-                borderLeft: { md: index % 2 === 1 ? '1px solid' : 'none' },
-              }}
+              index={index}
+              variant="settle"
+              component="li"
+              sx={{ height: '100%' }}
             >
-              <Typography variant="h4" component="h3">
-                {value.title}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary' }}>
-                {value.body}
-              </Typography>
+              <SurfaceCard padding="lg" sx={{ gap: 1.5 }}>
+                <Typography variant="h4" component="h3">
+                  {value.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {value.body}
+                </Typography>
+              </SurfaceCard>
             </Reveal>
           ))}
         </Box>
       </Section>
 
       {/* ----------------------------------------------------- Open roles */}
-      <Section tone="deep" dividerTop aria-labelledby="roles-heading">
+      <Section tone="alt" dividerTop aria-labelledby="roles-heading">
         <SectionHeading
           eyebrow="Open roles"
           id="roles-heading"
@@ -198,24 +200,13 @@ export default function Careers() {
             <Typography variant="label" component="h3" sx={{ color: 'text.disabled', mb: 2 }}>
               Disciplines we recruit into
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px 20px' }}>
-              {disciplines.map((discipline) => (
-                <Typography
-                  key={discipline}
-                  variant="body2"
-                  component="span"
-                  sx={{ fontFamily: fonts.mono, color: 'text.secondary' }}
-                >
-                  {discipline}
-                </Typography>
-              ))}
-            </Box>
+            <TagRow items={disciplines} />
           </Reveal>
         </Box>
       </Section>
 
       {/* -------------------------------------------------- Hiring process */}
-      <Section tone="paper" aria-labelledby="hiring-heading">
+      <Section tone="contrast" aria-labelledby="hiring-heading">
         <SectionHeading
           eyebrow="Hiring process"
           id="hiring-heading"
@@ -225,38 +216,37 @@ export default function Careers() {
 
         <Box component="ol" sx={{ listStyle: 'none', m: 0, mt: { xs: 5, md: 7 }, p: 0 }}>
           {hiringSteps.map((step, index) => (
-            <Reveal key={step.index} index={index % 3} component="li">
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '48px minmax(0, 1fr)', md: '80px 260px minmax(0, 1fr)' },
-                  gap: { xs: 2, md: 4 },
-                  py: 3,
-                  borderTop: '1px solid',
-                  borderColor: 'hairline',
-                  '&:last-of-type': { borderBottom: '1px solid', borderColor: 'hairline' },
-                }}
-              >
-                <Typography variant="label" component="span" sx={{ color: 'accentText', pt: '4px' }}>
-                  {step.index}
-                </Typography>
-                <Typography variant="h5" component="h3">
-                  {step.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ color: 'text.secondary', gridColumn: { xs: '2 / -1', md: 'auto' } }}
+            <Reveal key={step.index} index={index} variant="settle" component="li" sx={{ mb: { xs: 2, md: 2.5 } }}>
+              <SurfaceCard padding="md">
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '44px minmax(0, 1fr)', md: '72px 260px minmax(0, 1fr)' },
+                    gap: { xs: 2, md: 4 },
+                    alignItems: 'baseline',
+                  }}
                 >
-                  {step.description}
-                </Typography>
-              </Box>
+                  <Typography variant="label" component="span" sx={{ color: 'accentText' }}>
+                    {step.index}
+                  </Typography>
+                  <Typography variant="h5" component="h3">
+                    {step.name}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', gridColumn: { xs: '2 / -1', md: 'auto' } }}
+                  >
+                    {step.description}
+                  </Typography>
+                </Box>
+              </SurfaceCard>
             </Reveal>
           ))}
         </Box>
       </Section>
 
       {/* --------------------------------------------------------------- FAQ */}
-      <Section tone="ink" dividerTop aria-labelledby="career-faq-heading">
+      <Section tone="canvas" dividerTop aria-labelledby="career-faq-heading">
         <SectionHeading
           eyebrow="Questions"
           id="career-faq-heading"

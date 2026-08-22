@@ -1,79 +1,52 @@
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import { Section } from '@/components/layout/Section';
+import { SectionHeading } from '@/components/common/SectionHeading';
 import { Reveal } from '@/components/common/Reveal';
+import { TechGroupCard } from '@/components/cards';
 import { technologyGroups } from '@/data/technologies';
-import { fonts } from '@/theme/tokens';
 
 /**
  * Technology ecosystem.
  *
- * Rendered as typographic lists rather than a wall of vendor logos. Third
- * party marks would imply partnership or certification, and none has been
- * established — the honest statement is simply what the team works with.
+ * Grouped by the job the technology does, not listed as one long alphabet.
+ * The heading states the position explicitly — technology is chosen against
+ * the constraints of a problem — because a stack section without that framing
+ * reads as "we know everything", which is neither credible nor useful.
+ *
+ * Text chips rather than vendor logos: displaying third-party marks would
+ * imply partnerships or certifications that have not been established.
  */
 export function TechnologyStrip() {
   return (
-    <Section tone="deep" spacing="compact" dividerTop aria-labelledby="technology-heading">
+    <Section tone="alt" dividerTop aria-labelledby="technology-heading">
+      <SectionHeading
+        eyebrow="03 / Our stack"
+        id="technology-heading"
+        title="We choose technology against the problem."
+        lede="A curated, well-understood toolchain rather than a capability slide. Novel technology carries an operational cost that rarely shows up in the evaluation, so the interesting choices are reserved for genuinely unusual problems."
+      />
+
       <Box
+        component="ul"
         sx={{
+          listStyle: 'none',
+          m: 0,
+          mt: { xs: 5, md: 7 },
+          p: 0,
           display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 260px) minmax(0, 1fr)' },
-          gap: { xs: 4, md: 8 },
+          gridTemplateColumns: {
+            xs: '1fr',
+            sm: 'repeat(2, minmax(0, 1fr))',
+            lg: 'repeat(4, minmax(0, 1fr))',
+          },
+          gap: { xs: 2, md: 2.5 },
         }}
       >
-        <Reveal>
-          <Typography variant="label" component="p" sx={{ color: 'accentText', mb: 2 }}>
-            Ecosystem
-          </Typography>
-          <Typography variant="h3" component="h2" id="technology-heading">
-            What we build with
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-            Chosen per project against the constraints, not from a house standard.
-          </Typography>
-        </Reveal>
-
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
-            gap: { xs: 3, sm: 4 },
-          }}
-        >
-          {technologyGroups.map((group, index) => (
-            <Reveal key={group.title} index={index}>
-              <Typography variant="label" component="h3" sx={{ color: 'text.disabled', mb: 1.5 }}>
-                {group.title}
-              </Typography>
-              <Box
-                component="ul"
-                sx={{
-                  listStyle: 'none',
-                  m: 0,
-                  p: 0,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '6px 14px',
-                }}
-              >
-                {group.items.map((item) => (
-                  <Box
-                    component="li"
-                    key={item}
-                    sx={{
-                      fontFamily: fonts.mono,
-                      fontSize: '0.8125rem',
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {item}
-                  </Box>
-                ))}
-              </Box>
-            </Reveal>
-          ))}
-        </Box>
+        {technologyGroups.map((group, index) => (
+          <Reveal key={group.title} index={index} variant="settle" component="li" sx={{ height: '100%' }}>
+            <TechGroupCard title={group.title} items={group.items} />
+          </Reveal>
+        ))}
       </Box>
     </Section>
   );

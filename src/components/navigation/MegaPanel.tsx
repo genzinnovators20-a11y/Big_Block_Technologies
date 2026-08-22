@@ -92,7 +92,10 @@ export function MegaPanel({ item, open, onClose, onMouseEnter }: MegaPanelProps)
         position: 'absolute',
         insetInline: 0,
         top: '100%',
-        bgcolor: 'rgba(8, 14, 25, 0.97)',
+        // Part of the header chrome, so it resolves against the dark scheme
+        // the header declares — solid rather than translucent, because the
+        // panel overlays page content and has to stay legible over any of it.
+        bgcolor: 'surfaceCanvas',
         backdropFilter: 'saturate(180%) blur(16px)',
         borderTop: '1px solid',
         borderBottom: '1px solid',

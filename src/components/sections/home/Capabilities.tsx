@@ -6,22 +6,24 @@ import { ArrowRight } from 'lucide-react';
 import { Section } from '@/components/layout/Section';
 import { SectionHeading } from '@/components/common/SectionHeading';
 import { Reveal } from '@/components/common/Reveal';
+import { ServiceCard } from '@/components/cards';
+import { IndexBadge } from '@/components/ui';
 import { capabilityGroups, servicesByGroup } from '@/data/services';
-import { motion } from '@/theme/tokens';
 
 /**
  * Core capabilities.
  *
- * Twelve services presented as three grouped indexes rather than twelve
- * identical cards. Rows carry an icon, a name and a one-line summary, which
- * scans far faster than a card grid and avoids the repetitive
- * three-cards-per-row rhythm that makes corporate pages interchangeable.
+ * Twelve services shown as three labelled bands of four rather than one
+ * twelve-card wall. The band header carries the group's reason for existing,
+ * so a reader takes in three ideas and then scans within whichever one applies
+ * to them — which is a different experience from meeting twelve equivalent
+ * tiles at once.
  */
 export function Capabilities() {
   return (
-    <Section tone="deep" dividerTop aria-labelledby="capabilities-heading">
+    <Section tone="contrast" aria-labelledby="capabilities-heading">
       <SectionHeading
-        eyebrow="01 / Capabilities"
+        eyebrow="01 / What we do"
         id="capabilities-heading"
         title="Twelve services, three kinds of work."
         lede="Build covers product and platform engineering. Run covers everything that keeps software shippable afterwards. Specialised covers the domains that need dedicated depth."
@@ -37,90 +39,57 @@ export function Capabilities() {
         }
       />
 
-      <Box
-        sx={{
-          mt: { xs: 6, md: 9 },
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
-          gap: { xs: 5, md: 4 },
-        }}
-      >
+      <Box sx={{ mt: { xs: 6, md: 8 }, display: 'flex', flexDirection: 'column', gap: { xs: 6, md: 8 } }}>
         {capabilityGroups.map((group, groupIndex) => (
-          <Reveal key={group.id} index={groupIndex}>
+          <Box key={group.id} component="section" aria-labelledby={`capability-${group.id}`}>
+            <Reveal>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 300px) minmax(0, 1fr)' },
+                  gap: { xs: 1.5, md: 5 },
+                  alignItems: 'baseline',
+                  pb: 2.5,
+                  mb: { xs: 3, md: 3.5 },
+                  borderBottom: '2px solid',
+                  borderColor: 'brandAzure',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
+                  <IndexBadge value={groupIndex} />
+                  <Typography variant="h3" component="h3" id={`capability-${group.id}`}>
+                    {group.title}
+                  </Typography>
+                </Box>
+
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {group.description}
+                </Typography>
+              </Box>
+            </Reveal>
+
             <Box
+              component="ul"
               sx={{
-                height: '100%',
-                pt: 3,
-                borderTop: '2px solid',
-                borderColor: 'brandAzure',
+                listStyle: 'none',
+                m: 0,
+                p: 0,
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, minmax(0, 1fr))',
+                  lg: 'repeat(4, minmax(0, 1fr))',
+                },
+                gap: { xs: 2, md: 2.5 },
               }}
             >
-              <Typography variant="h4" component="h3">
-                {group.title}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1.5, color: 'text.secondary', minHeight: { md: 66 } }}>
-                {group.description}
-              </Typography>
-
-              <Box component="ul" sx={{ listStyle: 'none', m: 0, mt: 3, p: 0 }}>
-                {servicesByGroup(group.id).map((service) => (
-                  <Box component="li" key={service.id}>
-                    <Box
-                      component={RouterLink}
-                      to={`/services#${service.id}`}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 2,
-                        py: 2,
-                        borderTop: '1px solid',
-                        borderColor: 'hairline',
-                        transition: `border-color ${motion.duration.fast}ms ${motion.easing.standard}`,
-                        '&:hover': { borderColor: 'hairlineStrong' },
-                        '&:hover .cap-name': { color: 'primary.light' },
-                        '&:hover .cap-icon': { color: 'accentText' },
-                      }}
-                    >
-                      <Box
-                        className="cap-icon"
-                        component="span"
-                        aria-hidden="true"
-                        sx={{
-                          display: 'inline-flex',
-                          mt: '2px',
-                          color: 'text.disabled',
-                          transition: `color ${motion.duration.fast}ms ${motion.easing.standard}`,
-                        }}
-                      >
-                        <service.Icon size={18} strokeWidth={1.75} />
-                      </Box>
-
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography
-                          className="cap-name"
-                          variant="subtitle2"
-                          component="span"
-                          sx={{
-                            display: 'block',
-                            transition: `color ${motion.duration.fast}ms ${motion.easing.standard}`,
-                          }}
-                        >
-                          {service.name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          component="span"
-                          sx={{ display: 'block', mt: 0.5, color: 'text.secondary' }}
-                        >
-                          {service.summary}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
+              {servicesByGroup(group.id).map((service, index) => (
+                <Reveal key={service.id} index={index} variant="settle" component="li">
+                  <ServiceCard service={service} />
+                </Reveal>
+              ))}
             </Box>
-          </Reveal>
+          </Box>
         ))}
       </Box>
     </Section>

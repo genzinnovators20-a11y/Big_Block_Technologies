@@ -31,6 +31,12 @@ const contactRows = [
 /**
  * Site footer.
  *
+ * Keeps the dark brand chrome in both themes, deliberately and for the same
+ * reason as the header: it carries the logo lockup, whose silver "BIG" and
+ * grey "TECHNOLOGIES" are unreadable on a light surface. A dark footer closing
+ * a light page is a conventional, intentional-looking treatment — an
+ * illegible wordmark is not.
+ *
  * Contact rows and social links render only when the corresponding
  * environment variable is set. An unconfigured deployment shows a smaller
  * footer rather than plausible-looking placeholder details.
@@ -43,7 +49,7 @@ export function Footer() {
       component="footer"
       data-color-scheme="dark"
       sx={{
-        bgcolor: 'background.default',
+        bgcolor: 'surfaceCanvas',
         borderTop: '1px solid',
         borderColor: 'hairline',
         pt: { xs: 7, md: 10 },

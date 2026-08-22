@@ -1,7 +1,17 @@
 # Design System — Big Block Technologies
 
 The visual system for the corporate site. Everything documented here is
-implemented in `src/theme/` and is changeable from a small number of files.
+implemented in `src/theme/` and `src/components/ui/`, and is changeable from a
+small number of files.
+
+> **Version 2.** The V2 governing document — including the UI/UX Pro Max engine
+> output and the overrides applied to it — lives in
+> `design-system/big-block-technologies-v2/MASTER.md`, with page-level
+> deviations in `design-system/big-block-technologies-v2/pages/`.
+>
+> V1 was correct and under-designed: strong content on a nearly flat
+> typographic canvas. V2 keeps the content spine and the token layer unchanged
+> and adds the component and surface system that was missing.
 
 **Positioning statement:** serious engineering for modern technology. The
 interface should read as *precise* rather than *impressive*. Where there was a
@@ -57,30 +67,90 @@ Sampled from the brand artwork, not chosen abstractly:
 | Cube face          | `#064DB5` | Brand depth, light-scheme accent |
 | "BIG" wordmark     | `#C8CACE` | Steel / chrome detail |
 
-### Scheme architecture
+### Theme architecture
 
 Two schemes are generated from one token set and emitted as CSS custom
-properties scoped to `[data-color-scheme="…"]`. Dark is the default. **Any
-element can flip the scheme for its subtree by setting that attribute** — which
-is exactly what `Section` does. MUI components inside a light section pick up
-light colours automatically: no nested `ThemeProvider`, no colour props, and no
-possibility of a dark input landing on a white card.
+properties scoped to `[data-color-scheme="…"]`. **Dark is the product default**
+and the primary brand experience; light is the polished alternate.
 
-### Section tones
+The attribute lives on `<html>` and is written by MUI's `useColorScheme`, which
+also persists the choice to `localStorage` under `mui-mode`. A ten-line inline
+script in `index.html` applies the stored value before first paint, so a
+visitor who chose light never sees a dark flash while the bundle parses.
 
-The page alternates tone deliberately. A long corporate page that is uniformly
-dark has no hierarchy.
+**System preference is deliberately not applied on a first visit.** The product
+requirement is dark-first, so an unset preference resolves to dark rather than
+to `prefers-color-scheme`. The OS setting is honoured only if the visitor
+explicitly selects "system"; an explicit choice always wins.
 
-| Tone    | Scheme | Surface              | Used for |
-| ------- | ------ | -------------------- | -------- |
-| `ink`   | dark   | `#060B14`            | Heroes, closing CTA, high-impact sections |
-| `deep`  | dark   | `#0E1729`            | Secondary dark sections |
-| `panel` | dark   | `#131F35`            | Contrast blocks inside dark runs |
-| `light` | light  | `#F0F4F9`            | Reading-dense sections |
-| `paper` | light  | `#FFFFFF`            | Highest-contrast light sections |
+#### Tone is a surface step, not a scheme
 
-The homepage runs `ink → light → deep → panel → light → deep → paper → ink →
-panel → light → deep → ink`, so no two adjacent sections read the same.
+This is the part that matters. In V2, `tone` encoded a colour scheme — `light`
+and `paper` made `Section` set `data-color-scheme="light"` on itself. That was
+fine while there was no toggle, but it meant nineteen of the site's thirty-eight
+sections were hard-wired to a light scheme and would have ignored a theme switch
+entirely.
+
+Tone now describes only **distance from the page canvas**. The scheme comes from
+the root and nothing below it re-declares one, except three pieces of chrome
+that invert on purpose (below).
+
+| Tone       | Dark      | Light     | Used for |
+| ---------- | --------- | --------- | -------- |
+| `canvas`   | `#060B14` | `#FFFFFF` | Page canvas: heroes, insights |
+| `alt`      | `#0A111E` | `#F7F9FC` | Quiet alternating band |
+| `band`     | `#0E1729` | `#F0F4F9` | The main "other" surface |
+| `raised`   | `#131F35` | `#F3F6FB` | A block that sits above its neighbours |
+| `contrast` | `#172440` | `#E9EFF7` | Strongest tonal break |
+
+The homepage runs `canvas → band → contrast → canvas → alt → band → contrast →
+raised → band → alt → canvas → band`, which produces a varied rhythm in *either*
+theme. Measured luminance down the page:
+
+- dark: `0.003 → 0.009 → 0.018 → 0.003 → 0.006 → 0.009 → 0.018 → 0.014 → …`
+- light: `1.0 → 0.901 → 0.858 → 1.0 → 0.946 → 0.901 → 0.858 → 0.919 → …`
+
+Light mode is deliberately *not* a sequence of white rectangles. The complaint
+about the previous light direction was too much undifferentiated white; the fix
+is surface hierarchy, not darkness.
+
+#### Deliberate inversions
+
+Three surfaces keep the dark brand chrome in **both** themes. This is a
+constraint of the artwork, recorded here so nobody "fixes" it later:
+
+> The logo lockup sets "BIG" in the brand silver `#C8CACE` and "TECHNOLOGIES" in
+> grey. Those measure roughly **1.5:1** and **2.6:1** on white, and no dark-ink
+> variant of the artwork exists. A light header would render half the wordmark
+> unreadable.
+
+| Surface | Why |
+| --- | --- |
+| Header | Carries the lockup. In light mode it is fully opaque rather than transparent, so it reads as an intentional navy brand bar rather than a leftover. |
+| Footer | Carries the lockup. A dark footer closing a light page is conventional. |
+| CTA panel | Not artwork-driven — the page's closing statement rendered as a dark plate is an accent that works in both themes. |
+
+Everything else follows the toggle. A CDP surface audit walks every
+`main > section`, the header and the footer in both themes and flags any
+surface sitting on the wrong side of the luminance midpoint that was not
+deliberately pinned. Current result: **0 unexpected surfaces** in either theme.
+
+#### Theme transition
+
+A cross-fade runs only while a switch is in flight. `ThemeToggle` sets
+`data-theme-switching` on `<html>`, and a single scoped rule in `CssBaseline`
+transitions `background-color`, `border-color`, `color`, `fill` and `box-shadow`
+for 200ms. The attribute is removed 240ms later.
+
+Scoping it this way matters: a permanent `transition` on every element would
+cost paint time on every scroll and would make component hover states feel
+sluggish. The rule carries `!important` — deliberately, and confined to this one
+place — because it has to outrank per-component transitions for the duration of
+the switch, or the page would arrive in pieces at each component's own timing.
+Only paint properties are listed; nothing there can trigger layout.
+
+Under `prefers-reduced-motion` the attribute is never set and the switch is
+instant.
 
 ### Accessible pairs
 
@@ -233,19 +303,74 @@ Notable overrides:
 - **Inputs**: 16px text minimum, 2px azure focus ring, error state on the field.
 - **Accordion**: stripped to hairline rules; no card, no elevation.
 
-### Custom primitives
+**V2 addition — focus visibility.** MUI's own `ButtonBase` reset declares
+`outline: 0` from a class selector, which outranks the bare `:focus-visible`
+rule in `CssBaseline`. The effect was that plain links showed a focus ring and
+every button — including all the calls to action — showed nothing at all to a
+keyboard user. `MuiButtonBase.styleOverrides.root` now re-declares it on
+`.Mui-focusVisible`.
+
+### Layers
+
+Dependencies run one way: `ui/` knows nothing about the content model, `cards/`
+maps content onto `ui/`, and pages compose `cards/`.
+
+#### Primitives — `src/components/ui/`
+
+| Component        | Responsibility |
+| ---------------- | -------------- |
+| `SurfaceCard`    | The card. Border, tonal fill, lit top edge, hover and focus-within treatment |
+| `TechPanel`      | Dashboard-style panel: mono header, state marker, structured rows |
+| `GridBackdrop`   | The masked engineering grid — one implementation for the whole site |
+| `GlowBackdrop`   | Single radial azure wash, so dark sections do not read flat |
+| `CornerTicks`    | Technical-drawing registration marks around a figure |
+| `Eyebrow`        | Mono section label with its leading azure rule |
+| `IndexBadge`     | `01`–`10` ordinal marker |
+| `StatTile`       | One claim, given tile weight; optional azure emphasis |
+| `TagRow`         | Compact capability tags, chip or bullet, with `+n` overflow |
+| `ArrowCue`       | The hover-reveal arrow used on every card and row link |
+| `capItemsOnMobile` | CSS-only cap on how many grid items render below `sm` |
+
+#### Cards — `src/components/cards/`
+
+`ServiceCard` · `IndustryCard` · `CaseStudyCard` · `BlogCard` · `SolutionCard` ·
+`NumberedCard` · `TechGroupCard` · `ProcessTimeline`
+
+#### Layout and shared
 
 | Component            | Responsibility |
 | -------------------- | -------------- |
 | `Section`            | Page background, tone, colour scheme, vertical rhythm, optional grid |
 | `PageHero`           | Consistent inner-page opening; owns the page's single `h1` |
 | `SectionHeading`     | Eyebrow + heading + lede + optional action |
-| `Reveal`             | Scroll entrance with stagger and reduced-motion bail-out |
+| `Reveal`             | Scroll entrance: `rise`, `settle`, `sweep`, `fade`; capped stagger; reduced-motion bail-out |
 | `Seo`                | Title, description, canonical, OG/Twitter, JSON-LD |
 | `Logo`               | Brand lockup with reserved dimensions (no CLS) |
 | `IllustrativeNotice` | Disclosure rendered wherever engagement patterns appear |
-| `BlockLattice`       | Canvas isometric block field |
-| `Web3StackDiagram`   | Inline SVG layered architecture diagram |
+
+#### Generated visuals — `src/components/visual/`
+
+| Component          | Responsibility |
+| ------------------ | -------------- |
+| `BlockLattice`     | Canvas isometric block field (hero) |
+| `NodeNetwork`      | SVG peer network around one shared block (blockchain section) |
+| `CaseStudyGlyph`   | Six SVG architecture diagrams, one per engagement type |
+| `Web3StackDiagram` | Inline SVG layered architecture diagram |
+
+### Surface treatment
+
+Depth comes from **border, tone and a single hairline top-highlight** — never a
+drop shadow. A card is a plate of material with a lit edge, not a sheet
+floating above the page.
+
+```
+base surface  ->  bordered card  ->  card + top highlight  ->  card + azure border on hover
+```
+
+Hover moves `transform` and repaints `border-color` and `background-color`.
+None of those trigger layout, so a twelve-card grid costs nothing to hover
+across. `:focus-within` mirrors the hover state so a keyboard user sees the
+same affordance a mouse user does.
 
 ---
 
